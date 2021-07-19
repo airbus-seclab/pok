@@ -48,8 +48,8 @@
  * IDLE_STACK_SIZE is the stack size of the idle thread
  * DEFAULT_STACK_SIZE if the stack size of regulard threads
  */
-#define IDLE_STACK_SIZE		1024
 #define DEFAULT_STACK_SIZE	4096
+#define IDLE_STACK_SIZE		DEFAULT_STACK_SIZE
 
 #ifndef POK_USER_STACK_SIZE
 #define POK_USER_STACK_SIZE 8096

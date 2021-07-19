@@ -10,6 +10,7 @@ all:
 
 configure:
 	./misc/conf-env.pl $(ARCH)
+	./misc/override-toolchain.sh
 
 configure-xcov:
 	./misc/conf-env.pl --with-xcov $(ARCH)

@@ -154,29 +154,29 @@ static int print_int (union u_arg* value, struct s_file* file, int flags)
 }
 
 
-static int print_float (union u_arg* value, struct s_file* file, int flags)
-{
-  int floor = value->vdouble;
-  uint32_t fractional = 0;
-  int res = 0;
-  int precision = 0;
-  int decimal = 10;
+/* static int print_float (union u_arg* value, struct s_file* file, int flags) */
+/* { */
+/*   int floor = value->vdouble; */
+/*   uint32_t fractional = 0; */
+/*   int res = 0; */
+/*   int precision = 0; */
+/*   int decimal = 10; */
 
-  res +=  my_printnbr_base(floor, digits, 10, file);
-  my_putc('.', file);
-  (void)flags;
+/*   res +=  my_printnbr_base(floor, digits, 10, file); */
+/*   my_putc('.', file); */
+/*   (void)flags; */
 
-  while (precision < DOUBLE_PRECISION)
-  {
-    fractional = (value->vdouble - floor) * decimal;
-    fractional %= 10;
-    res += my_printnbr_base(fractional, digits, 10, file);
-    decimal *= 10;
-    ++precision;
-  }
+/*   while (precision < DOUBLE_PRECISION) */
+/*   { */
+/*     fractional = (value->vdouble - floor) * decimal; */
+/*     fractional %= 10; */
+/*     res += my_printnbr_base(fractional, digits, 10, file); */
+/*     decimal *= 10; */
+/*     ++precision; */
+/*   } */
 
-  return res;
-}
+/*   return res; */
+/* } */
 
 
 static int print_str (union u_arg* value, struct s_file* file, int flags)
@@ -208,7 +208,7 @@ static int print_base(union u_arg* value, struct s_file* file, int flags)
 static const struct s_format formats[] =
 {
    { 'd', print_int, INT_SIGNED },
-   { 'f', print_float, FLOAT_SIGNED },
+   /* { 'f', print_float, FLOAT_SIGNED }, */
    { 'i', print_int, INT_SIGNED },
    { 'u', print_int, INT_UNSIGNED },
    { 's', print_str, 0 },

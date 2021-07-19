@@ -1,3 +1,5 @@
+export POK_PATH=$(shell realpath $(shell pwd)/..)
+
 -include $(POK_PATH)/misc/mk/config.mk
 
 all:

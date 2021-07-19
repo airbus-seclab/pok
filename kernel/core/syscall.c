@@ -89,9 +89,10 @@ pok_ret_t pok_core_syscall (const pok_syscall_id_t       syscall_id,
 #endif
 
       case POK_SYSCALL_THREAD_CREATE:
-         return pok_partition_thread_create  ((uint32_t*)         (args->arg1 + infos->base_addr),
-                                             (pok_thread_attr_t*) (args->arg2 + infos->base_addr),
-                                             (uint8_t)            infos->partition);
+         return pok_partition_thread_create  (
+            (uint32_t*)         (args->arg1 + infos->base_addr),
+            (pok_thread_attr_t*) (args->arg2 + infos->base_addr),
+            (uint8_t)            infos->partition);
          break;
 
 #ifdef POK_NEEDS_THREAD_SLEEP

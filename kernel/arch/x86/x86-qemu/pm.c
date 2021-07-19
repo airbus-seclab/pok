@@ -68,11 +68,10 @@ int pok_pm_init ()
 uint32_t pok_pm_sbrk (uint32_t increment)
 {
   uint32_t addr;
-  
   addr = pok_x86_pm_brk;
-
   pok_x86_pm_brk += increment;
-
+#include <libc.h>
+  printf ("HEAP end |0x%x|\n", pok_x86_pm_brk);
   return (addr);
 }
 

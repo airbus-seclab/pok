@@ -75,8 +75,10 @@ uint32_t	pok_space_context_create (uint8_t  partition_id,
 {
    char*             stack_addr;
    space_context_t*  sp;
-   
+
    stack_addr = pok_bsp_mem_alloc (KERNEL_STACK_SIZE);
+   printf ("Partition %d kstack=|%x| size=|%x|\n",
+           partition_id, stack_addr, KERNEL_STACK_SIZE);
 
    sp = (space_context_t *)
       (stack_addr + KERNEL_STACK_SIZE - 4 - sizeof (space_context_t));
@@ -86,7 +88,9 @@ uint32_t	pok_space_context_create (uint8_t  partition_id,
    sp->ctx.__esp  = (uint32_t)(&sp->ctx.eip); /* for pusha */
    sp->ctx.eip    = (uint32_t)pok_dispatch_space;
    sp->ctx.cs     = GDT_CORE_CODE_SEGMENT << 3;
-   sp->ctx.eflags = 1 << 9;
+
+   if (partition_id)
+       sp->ctx.eflags = 1 << 9;
 
    sp->arg1          = arg1;
    sp->arg2          = arg2;
@@ -139,7 +143,10 @@ void pok_dispatch_space (uint8_t partition_id,
    ctx.eax     = arg1;
    ctx.ebx     = arg2;
    ctx.cs      = code_sel;
-   ctx.eflags  = 1 << 9;
+
+   if (partition_id)
+       ctx.eflags  = 1 << 9;
+
    ctx.esp     = user_sp;
 
    tss_set_esp0 (kernel_sp);

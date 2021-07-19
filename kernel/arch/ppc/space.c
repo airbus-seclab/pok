@@ -44,7 +44,7 @@ pok_ret_t pok_create_space (uint8_t partition_id,
                             uint32_t size)
 {
 #ifdef POK_NEEDS_DEBUG
-  printf ("pok_create_space: %d: %x %x\n", partition_id, addr, size);
+  printf ("pok_create_space: id %u base %x sz %x\n", partition_id, addr, size);
 #endif
   spaces[partition_id].phys_base = addr;
   spaces[partition_id].size = size;
@@ -56,8 +56,11 @@ pok_ret_t pok_space_switch (uint8_t old_partition_id,
                             uint8_t new_partition_id)
 {
   (void) old_partition_id;
-  /* printf ("space_switch %u -> %u\n", old_partition_id, new_partition_id); */
-  asm volatile ("mtsr %0,%1" : : "r"(0), "r"(PPC_SR_KP | new_partition_id));
+
+  uint32_t sr = PPC_SR_KP | new_partition_id;
+  /* printf ("space_switch id %u -> id %u || SR0 = 0x%x\n", */
+  /*         old_partition_id, new_partition_id, sr); */
+  asm volatile ("mtsr 0, %0" :: "r"(sr));
   return (POK_ERRNO_OK);
 }
 
@@ -169,8 +172,8 @@ void pok_arch_isi_int (uint32_t pc, uint32_t msr)
 {
 
 #ifdef POK_NEEDS_DEBUG
-  printf("isi_int: part=%d, pc=%x msr=%x\n",
-         pok_current_partition, pc, msr);
+  /* printf("isi_int: part=%d, pc=%x msr=%x\n", */
+  /*        pok_current_partition, pc, msr); */
 
   if (msr & ((1 << 28) | (1 << 27)))
   {
@@ -180,9 +183,15 @@ void pok_arch_isi_int (uint32_t pc, uint32_t msr)
 
   if (msr & (1 << 30))
     {
+/* #ifdef POK_NEEDS_DEBUG */
+/*        printf("[DEBUG] ISI Page Fault\n"); */
+/* #endif */
       /* Page fault  */
       if (pc < spaces[pok_current_partition].size)
         {
+/* #ifdef POK_NEEDS_DEBUG */
+/*            printf("[DEBUG] ISI insert pte\n"); */
+/* #endif */
           uint32_t vaddr = pc & POK_PAGE_MASK;
           uint32_t v;
           v = (spaces[pok_current_partition].phys_base + vaddr) & POK_PAGE_MASK;
@@ -202,10 +211,10 @@ void pok_arch_isi_int (uint32_t pc, uint32_t msr)
 
 void pok_arch_dsi_int (uint32_t dar, uint32_t dsisr)
 {
-#ifdef POK_NEEDS_DEBUG
-  printf("dsi_int: part=%d, dar=%x dsisr=%x\n",
-         pok_current_partition, dar, dsisr);
-#endif
+/* #ifdef POK_NEEDS_DEBUG */
+/*   printf("dsi_int: part=%d, dar=%x dsisr=%x\n", */
+/*          pok_current_partition, dar, dsisr); */
+/* #endif */
 
   if (dsisr & (1 << 30))
     {

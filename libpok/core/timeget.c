@@ -16,26 +16,31 @@
 
 #include <core/dependencies.h>
 
-#if ( (! defined (POK_CONFIG_OPTIMIZE_FOR_GENERATED_CODE )) || ( defined (POK_NEEDS_FUNCTION_TIME_GET)))
+//#if ( (! defined (POK_CONFIG_OPTIMIZE_FOR_GENERATED_CODE )) || ( defined (POK_NEEDS_FUNCTION_TIME_GET)))
 
 #include <errno.h>
 #include <types.h>
 #include <core/time.h>
 
+#ifdef POK_NEEDS_FUNCTION_TIME_GET
 pok_ret_t pok_time_get (pok_time_t* ms)
 {
    return (pok_time_gettick (ms));
 }
+#endif
 
+#ifdef POK_NEEDS_FUNCTION_TIME_GETTICK
 pok_ret_t pok_time_gettick(pok_time_t * value)
 {
   return pok_syscall2(POK_SYSCALL_GETTICK,(uint32_t) value, 0);
 }
+#endif
+
 /*
  * Get number of ticks that passed since the system starts
  * Similar to : pok_ret_t   pok_time_gettick (uint64_t* value);
  */
 
 
-#endif /* POK_CONFIG_OPTIMIZE_FOR_GENERATED_CODE */
+//#endif /* POK_CONFIG_OPTIMIZE_FOR_GENERATED_CODE */
 

@@ -37,5 +37,7 @@ void *pok_bsp_mem_alloc (size_t sz)
 
   res = (char *)(((unsigned int)heap_end + 4095) & ~4095);
   heap_end = res + sz;
-  return res;
+#include <libc.h>
+  printf ("HEAP end |0x%x|\n", heap_end);
+ return res;
 }

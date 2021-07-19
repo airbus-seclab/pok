@@ -1,3 +1,4 @@
+#define __ASM__
 #include "msr.h"
 
         .section ".start", "ax"
@@ -60,21 +61,38 @@ pok_arch_rfi:
         mtctr   %r0
         lwz     %r0,68(%r1)
         mtxer   %r0
+
+        /* saved SRR0 */
         lwz     %r0,72(%r1)
         mtsrr0  %r0
+
+        /* saved SRR1 */
         lwz     %r0,76(%r1)
+        ori     %r0,%r0,MSR_EE   /* preempt enable */
         mtsrr1  %r0
         andi.   %r0,%r0,MSR_PR
-        beq     1f
+        beq     rfi_end
+
+rfi_to_user:
         addi    %r0,%r1,FRAME_SIZE
-        mtsprg  1,%r1
-1:      lwz     %r0,8(%r1)
+        mtsprg  1, %r0
+
+        /* preempt enable */
+        /*
+        lwz     %r0,76(%r1)
+        ori     %r0,%r0,MSR_EE
+        mtsrr1  %r0
+        */
+rfi_end:
+        lwz     %r0,8(%r1)
         mtcr    %r0
         lwz     %r0,12(%r1)
         lwz     %r1,0(%r1)
         rfi
 
 failed: b failed
+
+decr_failed: b decr_failed
 
         . = base + 0x100
         .globl _pok_reset
@@ -187,10 +205,21 @@ decrementer_0900:
         mfcr    %r3
         mfsrr1  %r4
         andi.   %r4,%r4,MSR_PR
-        bne     failed /* Need to switch to system stack */
+        /* bne     decr_failed */ /* Need to switch to system stack */
+        bne     decr_from_usr
 
+decr_from_sys:
+        /* Already kernel */
         stwu    %r1,-FRAME_SIZE(%r1)
-        
+        b       decr_continue
+
+decr_from_usr:
+        /* Switch to kernel stack.  */
+        mr      %r4,%r1
+        mfsprg  %r1,1
+        stwu    %r4,-FRAME_SIZE(%r1)
+
+decr_continue:
         SAVE_REGS
 
         bl      pok_arch_decr_int
@@ -226,11 +255,12 @@ system_call_0C00:
         lwz     %r7,36(%r1)
         lwz     %r8,40(%r1)
 
-        /* Enable interrupt during syscalls.  */
+        /* mimic x86, uninterruptible syscalls */
+/*
         mfmsr   %r0
         ori     %r0,%r0,MSR_EE
         mtmsr   %r0
-
+*/
         bl      pok_arch_sc_int
         stw     %r3,20(%r1)
         

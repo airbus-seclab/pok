@@ -17,10 +17,9 @@ ifneq ($(XCOV),)
 CFLAGS+=-DPOK_NEEDS_COVERAGE_INFOS
 endif
 
-ifneq ($(POK_CONFIG_OPTIMIZE_FOR_GENERATED_CODE),) 
+ifneq ($(POK_CONFIG_OPTIMIZE_FOR_GENERATED_CODE),)
 CFLAGS+=-DPOK_CONFIG_OPTIMIZE_FOR_GENERATED_CODE=1
 endif
-
 
 
 $(LO_TARGET): $(LO_DEPS) $(LO_OBJS)
@@ -34,7 +33,7 @@ $(LO_TARGET): $(LO_DEPS) $(LO_OBJS)
 	if test $$? -eq 0; then $(ECHO) $(ECHO_FLAGS) $(ECHO_GREEN) " OK "; else $(ECHO) $(ECHO_FLAGS) $(ECHO_RED) " KO"; fi
 
 %.o: %.S
-	$(ECHO) $(ECHO_FLAGS) $(ECHO_FLAGS_ONELINE) "[CC] $< "
+	$(ECHO) $(ECHO_FLAGS) $(ECHO_FLAGS_ONELINE) "[CC ASM] $< "
 	$(CC) -c $(CFLAGS) -DASM_SOURCE=1 $< -o $@
 	if test $$? -eq 0; then $(ECHO) $(ECHO_FLAGS) $(ECHO_GREEN) " OK "; else $(ECHO) $(ECHO_FLAGS) $(ECHO_RED) " KO"; fi
 

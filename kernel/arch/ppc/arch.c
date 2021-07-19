@@ -26,23 +26,16 @@
 #include <core/partition.h>
 #include "msr.h"
 
+#ifdef POK_NEEDS_DEBUG
+#include <libc.h>
+#endif
+
 extern void pok_arch_space_init (void);
 
-static inline unsigned int get_msr (void)
+pok_ret_t pok_arch_init()
 {
-  unsigned int res;
-  asm ("mfmsr %0\n" : "=r" (res));
-  return res;
-}
-
-static inline void set_msr (unsigned int val)
-{
-  asm volatile ("mtmsr %0\n" : : "r" (val));
-}
-
-pok_ret_t pok_arch_init ()
-{
-  set_msr (MSR_IP);
+  set_msr(MSR_IP);
+  set_spr(SPR_HID0, HID0_POW);
 #if POK_NEEDS_PARTITIONS
   pok_arch_space_init();
 #endif
@@ -75,10 +68,24 @@ pok_ret_t pok_arch_idle()
 {
    while (1)
    {
+      unsigned int msr = get_msr();
+      if (!(msr & MSR_EE))
+      {
+	 msr |= MSR_EE;
+#ifdef POK_NEEDS_DEBUG
+         printf("IDLE -- NOT INTERRUPTIBLE --\n");
+	 printf("-- stack trace--\n");
+	 printf("%d 0x%x\n", 0, __builtin_return_address(0));
+#endif
+      }
+
+      msr |= MSR_WE; // hlt cpu
+      set_msr(msr);
    }
 
-   return (POK_ERRNO_OK);	
+   return (POK_ERRNO_OK);
 }
+
 
 pok_ret_t pok_arch_event_register (uint8_t vector, void (*handler)(void))
 {

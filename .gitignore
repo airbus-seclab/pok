@@ -1,0 +1,15 @@
+*.o
+*.a
+*.elf
+*.lo
+*.depend*
+*.elf.map
+rom.bin
+partitions.bin
+sizes.c
+TAGS
+generated-code
+misc/mk/config.mk
+doc/**/html/
+doc/**/*.pdf
+doc/**/*.lof

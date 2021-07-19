@@ -66,9 +66,9 @@ pok_context_switch:
 
         .globl pok_arch_thread_start
 pok_arch_thread_start:
+        mtmsr   %r13
         mr      %r3, %r14
         mr      %r4, %r15
-        
         xor     %r0,%r0,%r0
         stw     %r0,4(%r1)
         bl      pok_thread_start

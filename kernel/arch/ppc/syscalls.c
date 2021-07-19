@@ -51,11 +51,13 @@ void pok_arch_sc_int(uint32_t num, uint32_t arg1, uint32_t arg2,
    /* prepare syscall_id */
    syscall_id = (pok_syscall_id_t) num;
 
-   if (POK_CHECK_PTR_IN_PARTITION(syscall_info.partition, &syscall_args) != 0)
-   {
-      /*
-       * Perform the syscall baby !
-       */
-     pok_core_syscall (syscall_id, &syscall_args, &syscall_info);
-   }
+#if defined (POK_NEEDS_CONSOLE) || defined (POK_NEEDS_DEBUG)
+   /* printf("P%d/T%d syscall %d\n", */
+   /*        syscall_info.partition, */
+   /*        syscall_info.thread, */
+   /*        syscall_id */
+   /*    ); */
+#endif
+
+   pok_core_syscall (syscall_id, &syscall_args, &syscall_info);
 }

@@ -33,12 +33,12 @@ $(PDFFILE): $(TEXFILES) $(EPSFILES) $(BIBLIO) $(LISTINGS)
 		NLINES=`wc -l ../../libpok/include/$$v|awk '{print $$1}'` ; NLINES=`expr $$NLINES - 15` ; \
 		tail -n $$NLINES ../../libpok/include/$$v > include-libpok/$$v ; \
 	done
-	cp `ocarina-config --prefix`/share/ocarina/AADLv2/pok_properties.aadl .
-	cp `ocarina-config --prefix`/share/ocarina/AADLv2/arinc653_properties.aadl .
-	cp ../../examples/network/rtl8029.aadl sample-network-rtl8029.aadl
-	cp ../../examples/network/main.aadl sample-network-main.aadl
-	cp ../../examples/network/runtime.aadl sample-network-runtime.aadl
-	cp ../../misc/aadl-library.aadl .
+	#cp `ocarina-config --prefix`/share/ocarina/AADLv2/pok_properties.aadl .
+	#cp `ocarina-config --prefix`/share/ocarina/AADLv2/arinc653_properties.aadl .
+	#cp ../../examples/network/rtl8029.aadl sample-network-rtl8029.aadl
+	#cp ../../examples/network/main.aadl sample-network-main.aadl
+	#cp ../../examples/network/runtime.aadl sample-network-runtime.aadl
+	#cp ../../misc/aadl-library.aadl .
 	pdflatex $(TEXMAIN)
 	pdflatex $(TEXMAIN)
 

@@ -152,7 +152,7 @@ pok_ret_t pok_partition_init ()
 #ifdef POK_NEEDS_LOCKOBJECTS
    uint8_t lockobj_index = 0;
 #endif
-
+   printf ("\n");
    for (i = 0 ; i < POK_CONFIG_NB_PARTITIONS ; i++)
    {
       uint32_t size = partition_size[i];
@@ -167,11 +167,9 @@ pok_ret_t pok_partition_init ()
       pok_partitions[i].base_addr   = base_addr;
       pok_partitions[i].size        = size;
       pok_partitions[i].sched       = POK_SCHED_RR;
-     
-#ifdef POK_NEEDS_COVERAGE_INFOS
-#include <libc.h>
-      printf ("[XCOV] Partition %d loaded at addr virt=|%x|, phys=|%x|\n", i, base_vaddr, base_addr);
-#endif
+
+      printf ("Partition %d base=|%x| size=|%x|\n",
+              i, base_addr, size);
 
       pok_partition_setup_scheduler (i);
 
@@ -179,7 +177,7 @@ pok_ret_t pok_partition_init ()
 
       pok_partitions[i].base_vaddr = base_vaddr;
       /* Set the memory space and so on */
-      
+
       pok_partitions[i].thread_index_low  = threads_index;
       pok_partitions[i].nthreads          = ((uint32_t[]) POK_CONFIG_PARTITIONS_NTHREADS) [i];
 
@@ -232,7 +230,7 @@ pok_ret_t pok_partition_init ()
        * Load the partition in its address space
        */
       pok_partitions[i].thread_main_entry = program_entry;
-      
+
       pok_partitions[i].lock_level = 0;
       pok_partitions[i].start_condition = NORMAL_START;
 
@@ -279,25 +277,42 @@ pok_ret_t pok_partition_set_mode (const uint8_t pid, const pok_partition_mode_t 
 	 unsigned int i;
 	 for (i = 0; i < pok_partitions[pid].nthreads; i++)
 	 {
-		 thread = &(pok_threads[POK_CURRENT_PARTITION.thread_index_low + i]);
-		 if ((long long)thread->period == -1) {//-1 <==> ARINC INFINITE_TIME_VALUE
-			 if(thread->state == POK_STATE_DELAYED_START) { // delayed start, the delay is in the wakeup time
-				 if(!thread->wakeup_time) {
-					 thread->state = POK_STATE_RUNNABLE;
-				 } else {
-					 thread->state = POK_STATE_WAITING;
-				 }
-				 thread->wakeup_time += POK_GETTICK();
-				 thread->end_time =  thread->wakeup_time + thread->time_capacity;
-			 }
-		 } else {
-			 if(thread->state == POK_STATE_DELAYED_START) { // delayed start, the delay is in the wakeup time
-				 thread->next_activation = thread->wakeup_time + POK_CONFIG_SCHEDULING_MAJOR_FRAME + POK_CURRENT_PARTITION.activation;
-				 thread->end_time =  thread->next_activation + thread->time_capacity;
-				 thread->state = POK_STATE_WAIT_NEXT_ACTIVATION;
-			 }
-		 }
+	    thread = &(pok_threads[POK_CURRENT_PARTITION.thread_index_low + i]);
+
+	    //-1 <==> ARINC INFINITE_TIME_VALUE
+	    if ((long long)thread->period == -1)
+	    {
+	       // delayed start, the delay is in the wakeup time
+	       if(thread->state == POK_STATE_DELAYED_START)
+	       {
+		  if(!thread->wakeup_time) {
+		     thread->state = POK_STATE_RUNNABLE;
+		  } else {
+		     thread->state = POK_STATE_WAITING;
+		  }
+		  thread->wakeup_time += POK_GETTICK();
+		  thread->end_time =
+		     thread->wakeup_time + thread->time_capacity;
+	       }
+	    }
+	    else
+	    {
+	       // delayed start, the delay is in the wakeup time
+	       if(thread->state == POK_STATE_DELAYED_START)
+	       {
+		  thread->next_activation =
+		     thread->wakeup_time +
+		     POK_CONFIG_SCHEDULING_MAJOR_FRAME +
+		     POK_CURRENT_PARTITION.activation;
+
+		  thread->end_time =
+		     thread->next_activation + thread->time_capacity;
+
+		  thread->state = POK_STATE_WAIT_NEXT_ACTIVATION;
+	       }
+	    }
 	 }
+
          pok_sched_stop_thread (pok_partitions[pid].thread_main);
          /* We stop the thread that call this change. All the time,
           * the thread that init this request is the init thread.

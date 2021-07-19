@@ -5,8 +5,19 @@ ENTRY(_pok_reset)
 SECTIONS
 {
   /* Read-only sections, merged into text segment: */
-  . = 0xfff00000;
+  /* . = 0xffe00000; */
+  /* .archive : */
+  /* { */
+  /*   LONG(0) */
+  /*   __archive_begin = .; */
+  /*   *(.archive) */
+  /*   __archive_end = .; */
+  /*   __archive2_begin = .; */
+  /*   *(.archive2) */
+  /*   __archive2_end = .; */
+  /* } */
 
+  . = 0xfff00000;
   .text           :
   {
     *(.start)
@@ -32,7 +43,7 @@ SECTIONS
     __rodata_end = .;
   } =0
 
-  . = 0x10000;
+ . = 0x10000;
 
   __sdata2_load = __rodata_end;
   .sdata2 : AT (__sdata2_load)
